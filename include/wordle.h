@@ -19,8 +19,10 @@ __      _____  _ __ __| | | ___    \n \
 "                               
 
 extern char **words_arr[27];
+extern char *choosen_word;
 
 int serve(void);
 int client(char *username, char *password, char *address, int op);
+int	play_game(int socket);
 
 #endif

@@ -94,6 +94,7 @@ int client(char *username, char *password, char *address, int op)
             exit(1);
         }
         buf[numbytes] = '\0';
+        // char *tok = strtok(buf, "\r\n");
         if (!strcmp(buf, "accept")) {
             char input;
             int n_read;
@@ -107,7 +108,21 @@ int client(char *username, char *password, char *address, int op)
                 }
                 switch (input)
                 {
-                case 'p': /* play */ break;
+                case 'p': {
+                    send(sockfd, "play", 5, 0);
+                    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+                        perror("recv");
+                        exit(1);
+                    }
+                    buf[numbytes] = '\0';
+                    char *tok = strtok(buf, "\r\n");
+                    printf("%s", strtok(NULL, "\r\n"));
+                    if (!strcmp(tok, "ko")) {
+                        return(0);
+                    }
+                    play_game(sockfd);
+                    break;
+                }
                 case 'l': /* leaderboard */ break;
                 case 's': /* stats */ break;
                 case 'q': printf("See you soon %s!\n", username); exit(0);

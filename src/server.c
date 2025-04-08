@@ -12,8 +12,10 @@
 #define PORT "9034"
 
 #include "../include/wordle.h"
+#include "../include/users.h"
 
 char **words_arr[27];
+user_t *user_list = {0};
 
 static int login(char *username, char *password)
 {
@@ -53,11 +55,9 @@ static int register_user(char *username, char *password)
         user = fopen(path, "w");
         fprintf(user, "%s\n%s\n%s\n%s\n", password, "0", "0", "0");
         fclose(user);
-        // store user in user
     } else {
         fclose(user);
         return(0);
-        // check if username is already took
     }
     return (1);
 }
@@ -281,9 +281,9 @@ int serve(void)
                             // Connection closed
                             printf("wordle: socket %d hung up\n", sender_fd);
                         } else {
-                            printf("nbytes -1\n");
                             perror("recv");
                         }
+                        del_user(pfds[i].fd);
                         close(pfds[i].fd);
                         del_from_pfds(pfds, i, &fd_count);
                         i--;
@@ -291,23 +291,40 @@ int serve(void)
                     } else {
                         buf[nbytes] = 0;
                         char *op = strtok(buf, "\r\n");
-                        char *username = strtok(NULL, "\r\n");
-                        char *password = strtok(NULL, "\r\n");
                         if (!strcmp(op, "signup")) {
+                            char *username = strtok(NULL, "\r\n");
+                            char *password = strtok(NULL, "\r\n");
                             if (register_user(username, password))
                                 send(pfds[i].fd, "well done!\nuser registered", 27, 0);
                             else
                                 send(pfds[i].fd, "try again:\nuser already exists", 30, 0);
                         } else if (!strcmp(op, "login")) {
+                            char *username = strtok(NULL, "\r\n");
+                            char *password = strtok(NULL, "\r\n");
                             int status = login(username, password);
                             switch (status)
                             {
-                            case 1: send(pfds[i].fd, "accept", 7, 0); break;
+                            case 1: {
+                                send(pfds[i].fd,"accept", 7, 0);
+                                add_user(username, pfds[i].fd);
+                                break;
+                            }
                             case 0: send(pfds[i].fd, "password does not match", 24, 0); break;
                             case -1: send(pfds[i].fd, "user does not exists", 21, 0); break;
                             case -2: send(pfds[i].fd, "Internal Server Error", 22, 0); break;
                             default: break;
                             }
+                        } else if (!strcmp(op, "play")) {
+                            user_t *user = get_user(pfds[i].fd);
+                            if (user->status == END_GAME) {
+                                send(pfds[i].fd, "ko\r\nYou have no more attempts for today, wait tomorrow for the next word!\r\n", 70, 0);    
+                            }
+                            int attempts = 6 - (int)user->status;
+                            char msg[256];
+                            sprintf(msg, "ok\r\nAttempts left: %d\n", attempts);
+                            send(pfds[i].fd, msg, strlen(msg), 0);
+                        } else if (!strcmp(op, "guess")) {
+                            char *tok = strtok(NULL, "\r\n");
                         }
                     }
                 } // END handle data from client

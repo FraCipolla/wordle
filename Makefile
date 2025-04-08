@@ -1,5 +1,5 @@
 NAME=wordle
-SRC=main.c server.c client.c
+SRC=main.c server.c client.c game.c users.c
 SRCDIR=src
 SRCS=$(addprefix $(SRCDIR)/, $(SRC))
 CC=gcc

@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "wordle.h": "c"
-    }
+        "wordle.h": "c",
+        "netdb.h": "c",
+        "types.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

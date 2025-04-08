@@ -4,35 +4,23 @@
 
 #include "../include/wordle.h"
 
-int	play_game(char *word)
-{
-	static int	tries = 0;
-	int	count = 0;
-	char	guess[6];
+char *choosen_word = "test";
 
-	printf("Try a world: ");
-	scanf("%s", guess);
-	if (strlen(guess) != 5) {
-		printf("\nError: word must be 5 characters long");
-		return (0);
-	} // controllare che sia una parola valida 
-	else if (strcmp(guess, word) == 0) {
+char *guess_word(char *guess)
+{
+	if (strcmp(guess, choosen_word) == 0) {
 		for (int i = 0; i < 5; i++) {
 			printf("\033[30;42m %c \033[0m", guess[i]);
-			}
-		printf("\nCongratulations! You guessed the word!");
-		// devo salvare tries + 1
-		tries = 0;
-		return (1);
+		}
+		printf("\nCongratulations! You guessed the right word!");
 	} else {
-		tries++;
 		for (int i = 0; i < 5; i++) {
-			if (guess[i] == word[i]) {
+			if (guess[i] == choosen_word[i]) {
 				printf("\033[30;42m %c \033[0m", guess[i]);
 			}
 			else {
 				for (int j = 0; j < 5; j++) {
-					if (guess[i] == word[j]) {
+					if (guess[i] == choosen_word[j]) {
 						count  = printf("\033[30;43m %c \033[0m", guess[i]);
 						break;
 					}
@@ -44,20 +32,28 @@ int	play_game(char *word)
 		}
 	}
 	printf("\n");
-	if (tries >= 6){
-		printf("You lose\nToo may tries");
-		tries = 0;
-		return (1);
-	}
-	return (0);
 }
 
-int	main ()
+int	play_game(int socket)
 {
-	char word[6] = "testo";
+	int	count = 0;
+	char [6];
+	int nunmbytes = 0;
+
 	while (1) {
-		if (play_game(word) == 1) {
-			break;
+		printf("Guess a 5 chars long word: ");
+		int n = scanf("%s", guess);
+		if (n <= 0) { continue; }
+		if (strlen(guess) != 5) {
+			printf("\nError: word must be 5 characters long");
+		} else {
+			char msg[16];
+			sprintf(msg, "guess\r\n%s", guess)
+			send(socket, guess, strlen(guess), 0);
+			if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+				perror("recv");
+				exit(1);
+			}
 		}
 	}
 }

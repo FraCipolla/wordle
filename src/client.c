@@ -7,8 +7,9 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
 #include <arpa/inet.h>
+
+#include "../include/wordle.h"
 
 #define PORT "9034" // the port client will be connecting to 
 
@@ -73,8 +74,6 @@ static int client(char *username, char *password, char *address, int op)
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
 
     if (op == SIGNUP) {
-        printf("signup\n");
-        printf("username %s password %s address %s\n", username, password, address);
         char buff[1024];
         sprintf(buff, "signup\n%s\n%s\n", username, password);
         printf("%s\n",buff);
@@ -88,7 +87,6 @@ static int client(char *username, char *password, char *address, int op)
         close(sockfd);
         return 0;
     } else if (op == LOGIN) {
-        printf("login\n");
         char buff[1024];
         sprintf(buff, "login\r\nusername %s\r\npassword %s\r\n\r\n", username, password);
         send(sockfd, buff, strlen(buff), 0);
@@ -97,11 +95,38 @@ static int client(char *username, char *password, char *address, int op)
             exit(1);
         }
         buf[numbytes] = '\0';
-        printf("%s\n",buf);
         if (!strcmp(buf, "accept")) {
-            for (;;) {
-                
+            char input;
+            int n_read;
+            printf("login succesfull!\n%s\n", WORDLE);
+            printf("Welcome back %s!\n[p]lay    [l]eaderboard   [s]tats [q]uit\n\n ", username);
+            int w = write(1, "wordle> ", 8);
+            if (w <= 0) { exit(0); }
+            while((n_read = read(0, &input, 1))) {
+                if (n_read == 0) {
+                    continue;
+                }
+                switch (input)
+                {
+                case 'p': /* play */ break;
+                case 'l': /* leaderboard */ break;
+                case 's': /* stats */ break;
+                case 'q': printf("See you soon %s!\n", username); exit(0);
+                default:
+                printf("\nerror: wrong input, please insert one of the following:\n");
+                printf("[p] play    [l] leaderboard   [s] stats [q] quit\n\n");
+                break;
+                }
+                printf("%c", input);
+                char cmd[32];
+                cmd[0] = input;
+                input = 0;
+                n_read = read(0, &cmd[1], 31);
+
             }
+        } else {
+            printf("login failed, please try again\n");
+            exit(0);
         }
     }
     return 0;

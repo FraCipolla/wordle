@@ -11,6 +11,10 @@
 
 #define PORT "9034"
 
+#include "../include/wordle.h"
+
+char **words_arr[27];
+
 // static int register_user(char *username, char *password)
 // {
 //     FILE *db;
@@ -24,6 +28,63 @@
 
 //     }
 // }
+
+void load_words()
+{
+    FILE *words;
+
+    char buffer[8];
+
+    words = fopen("words.txt", "r");
+    if (!words) {
+        printf("error: cannot open words.txt\n");
+        exit(1);
+    }
+    printf("file open\n");
+    int i = 0;
+    char c = 'a';
+    char *word;
+    int size = 0;
+    while ((word = fgets(buffer, 8, words))) {
+        if (word[0] != c) {
+            words_arr[i] = malloc(sizeof(char**) * size + 1);
+            words_arr[i][size] = NULL;
+            i++;
+            c = word[0];
+            size = 1;
+        } else {
+            size++;
+        }
+    }
+    words_arr[i] = malloc(sizeof(char**) * size + 1);
+    words_arr[i][size] = NULL;
+    fclose(words);
+
+    words = fopen("words.txt", "r");
+    if (!words) {
+        printf("error: cannot open words.txt\n");
+        exit(1);
+    }
+
+    i = 0;
+    c = 'a';
+    int j = 0;
+    while ((word = fgets(buffer, 7, words))) {
+        word[5] = 0;
+        if (word[0] != c) {
+            i++;
+            c = word[0];
+            j = 0;
+        }
+        words_arr[i][j] = malloc(sizeof(char) * 6);
+        strncpy(words_arr[i][j], word, 6);
+        j++;
+    }
+    fclose(words);
+    for (int j = 0; words_arr[1][j]; j++) {
+        printf("%s\n", words_arr[1][j]);
+    }
+}
 
 // Get sockaddr, IPv4 or IPv6:
 static void *get_in_addr(struct sockaddr *sa)
@@ -144,6 +205,7 @@ int serve(void)
 
     fd_count = 1; // For the listener
 
+    load_words();
     // Main loop
     for(;;) {
         int poll_count = poll(pfds, fd_count, -1);
@@ -178,8 +240,6 @@ int serve(void)
                                 INET6_ADDRSTRLEN),
                                 newfd
                             );
-                        char welcome[] = "Welcome to wordle!";
-                        send(newfd, welcome, sizeof(welcome), 0);
                     }
                 } else {
                     // If not the listener, we're just a regular client
@@ -191,9 +251,9 @@ int serve(void)
                             // Connection closed
                             printf("wordle: socket %d hung up\n", sender_fd);
                         } else {
+                            printf("nbytes -1\n");
                             perror("recv");
                         }
-
                         close(pfds[i].fd);
                         del_from_pfds(pfds, i, &fd_count);
                         i--;
@@ -205,6 +265,9 @@ int serve(void)
                         char *password = strtok(NULL, "\r\n");
                         if (!strcmp(op, "signup")) {
                             // register_user(username, password);
+                        } else if (!strcmp(op, "login")) {
+                            // check if username:password exists
+                            send(pfds[i].fd, "accept", 7, 0);
                         }
                         printf("%s %s %s\n", op, username, password);
                     }

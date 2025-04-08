@@ -76,7 +76,6 @@ static int client(char *username, char *password, char *address, int op)
     if (op == SIGNUP) {
         char buff[1024];
         sprintf(buff, "signup\n%s\n%s\n", username, password);
-        printf("%s\n",buff);
         send(sockfd, buff, strlen(buff), 0);
         if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
             perror("recv");
@@ -136,7 +135,8 @@ int signup(char *argv[])
 {
     char *username = strtok(argv[0], ":");
     char *password = strtok(NULL, "");
-    printf("username %s password %s address %s\n", username, password, argv[1]);
+
+    // printf("username %s password %s address %s\n", username, password, argv[1]);
     client(username, password, argv[1], SIGNUP);
     return 0;
 }

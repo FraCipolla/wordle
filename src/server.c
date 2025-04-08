@@ -11,6 +11,10 @@
 
 #define PORT "9034"
 
+#include "../include/wordle.h"
+
+char **words_arr[27];
+
 static int register_user(char *username, char *password)
 {
     FILE *db;

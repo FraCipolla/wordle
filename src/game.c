@@ -17,8 +17,10 @@ int	play_game(char *word)
 		return (0);
 	} // controllare che sia una parola valida 
 	else if (strcmp(guess, word) == 0) {
-		printf("\033[30;42m %s \033[0m", guess);
-		printf("Congratulations! You guessed the word!\n");
+		for (int i = 0; i < 5; i++) {
+			printf("\033[30;42m %c \033[0m", guess[i]);
+			}
+		printf("\nCongratulations! You guessed the word!");
 		// devo salvare tries + 1
 		tries = 0;
 		return (1);

@@ -11,19 +11,25 @@
 
 #define PORT "9034"
 
-// static int register_user(char *username, char *password)
-// {
-//     FILE *db;
-
-//     db = fopen("records.txt", "r");
-//     if (!db) {
-//         db = fopen("record.txt", "w");
-//         // store user in db
-//     } else {
-//         // check if username is already took
-
-//     }
-// }
+static int register_user(char *username, char *password)
+{
+    FILE *db;
+    char path[1024];
+    
+    sprintf(path, "records/%s.txt", username);
+    db = fopen(path, "r");
+    if (!db) {
+        db = fopen(path, "w");
+        fprintf(db, "%s\n%s\n%s\n%s\n", password, "0", "0", "0");
+        fclose(db);
+        // store user in db
+    } else {
+        fclose(db);
+        return(0);
+        // check if username is already took
+    }
+    return (1);
+}
 
 // Get sockaddr, IPv4 or IPv6:
 static void *get_in_addr(struct sockaddr *sa)
@@ -178,8 +184,6 @@ int serve(void)
                                 INET6_ADDRSTRLEN),
                                 newfd
                             );
-                        char welcome[] = "Welcome to wordle!";
-                        send(newfd, welcome, sizeof(welcome), 0);
                     }
                 } else {
                     // If not the listener, we're just a regular client
@@ -204,7 +208,13 @@ int serve(void)
                         char *username = strtok(NULL, "\r\n");
                         char *password = strtok(NULL, "\r\n");
                         if (!strcmp(op, "signup")) {
-                            // register_user(username, password);
+                            if (register_user(username, password))
+                                send(pfds[i].fd, "well done!\nuser registered", 27, 0);
+                            else
+                                send(pfds[i].fd, "try again:\nuser already exists", 30, 0);
+                        }
+                        else if (!strcmp(op, "login")) {
+                            // login(username, password);
                         }
                         printf("%s %s %s\n", op, username, password);
                     }

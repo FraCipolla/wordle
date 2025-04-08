@@ -17,6 +17,10 @@ int main(int argc, char *argv[])
             printf("error\nusage:\n\twordle signup <username>:<password> <url>\n");
             return 1;
         }
+        if (!strchr(argv[2], ':')) {
+            printf("error\nusage:\n\twordle signup <username>:<password> <url>\n");
+            return 1;
+        }
         signup(&argv[2]);
     } else if (!strcmp(argv[1], "login")) {
         if (argc != 4) {

@@ -15,20 +15,47 @@
 
 char **words_arr[27];
 
-static int register_user(char *username, char *password)
+static int login(char *username, char *password)
 {
-    FILE *db;
+    FILE *user;
     char path[1024];
     
     sprintf(path, "records/%s.txt", username);
-    db = fopen(path, "r");
-    if (!db) {
-        db = fopen(path, "w");
-        fprintf(db, "%s\n%s\n%s\n%s\n", password, "0", "0", "0");
-        fclose(db);
-        // store user in db
+    user = fopen(path, "r");
+    if (!user) {
+        return -1;
+        // user does not exists
     } else {
-        fclose(db);
+        char pwd[32];
+        char *r = fgets(pwd, 32, user);
+        pwd[strlen(pwd) - 1] = 0;
+        if (!r) {
+            fclose(user);
+            return -2;
+            // cannot read
+        }
+        if (!strcmp(pwd, password)) {
+            fclose(user);
+            return 1;
+        }
+    }
+    return(0);
+}
+
+static int register_user(char *username, char *password)
+{
+    FILE *user;
+    char path[1024];
+    
+    sprintf(path, "records/%s.txt", username);
+    user = fopen(path, "r");
+    if (!user) {
+        user = fopen(path, "w");
+        fprintf(user, "%s\n%s\n%s\n%s\n", password, "0", "0", "0");
+        fclose(user);
+        // store user in user
+    } else {
+        fclose(user);
         return(0);
         // check if username is already took
     }
@@ -87,9 +114,6 @@ void load_words()
         j++;
     }
     fclose(words);
-    for (int j = 0; words_arr[1][j]; j++) {
-        printf("%s\n", words_arr[1][j]);
-    }
 }
 
 // Get sockaddr, IPv4 or IPv6:
@@ -274,12 +298,17 @@ int serve(void)
                                 send(pfds[i].fd, "well done!\nuser registered", 27, 0);
                             else
                                 send(pfds[i].fd, "try again:\nuser already exists", 30, 0);
+                        } else if (!strcmp(op, "login")) {
+                            int status = login(username, password);
+                            switch (status)
+                            {
+                            case 1: send(pfds[i].fd, "accept", 7, 0); break;
+                            case 0: send(pfds[i].fd, "password does not match", 24, 0); break;
+                            case -1: send(pfds[i].fd, "user does not exists", 21, 0); break;
+                            case -2: send(pfds[i].fd, "Internal Server Error", 22, 0); break;
+                            default: break;
+                            }
                         }
-                        else if (!strcmp(op, "login")) {
-                            send(pfds[i].fd, "accept", 7, 0);
-                            // login(username, password);
-                        }
-                        printf("%s %s %s\n", op, username, password);
                     }
                 } // END handle data from client
             } // END got ready-to-read from poll()

@@ -21,7 +21,6 @@ __      _____  _ __ __| | | ___    \n \
 extern char **words_arr[27];
 
 int serve(void);
-int signup(char *argv[]);
-int login(char *argv[]);
+int client(char *username, char *password, char *address, int op);
 
 #endif

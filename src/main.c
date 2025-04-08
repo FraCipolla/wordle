@@ -12,22 +12,25 @@ int main(int argc, char *argv[])
     if (!strcmp(argv[1], "serve")) {
         serve();
         return 0;
-    } else if (!strcmp(argv[1], "signup")) {
+    } else if (!strcmp(argv[1], "signup") || !strcmp(argv[1], "login")) {
         if (argc != 4) {
+            printf("error\nusage:\n\twordle %s <username>:<password> <url>\n", argv[1]);
+            return 1;
+        }
+        int op = 0;
+        if (!strcmp(argv[1], "login")) {
+            op = 1;
+        }
+        char *address = argv[3];
+        char *username = strtok(argv[2], ":");
+        char *password = strtok(NULL, "");
+
+        if (!password) {
             printf("error\nusage:\n\twordle signup <username>:<password> <url>\n");
             return 1;
         }
-        if (!strchr(argv[2], ':')) {
-            printf("error\nusage:\n\twordle signup <username>:<password> <url>\n");
-            return 1;
-        }
-        signup(&argv[2]);
-    } else if (!strcmp(argv[1], "login")) {
-        if (argc != 4) {
-            printf("error\nusage:\n\twordle login <username>:<password> <url>\n");
-            return 1;
-        }
-        login(&argv[2]);
+        
+        client(username, password, address, op);
     } else {
         printf("unrecognized command %s\nusage:\n\tsignup:\twordle signup <username>:<password> <url>\n\tsignup:\twordle login <username>:<password> <url>\n", argv[1]);
         return 1;

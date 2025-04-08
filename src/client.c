@@ -30,7 +30,7 @@ static void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-static int client(char *username, char *password, char *address, int op)
+int client(char *username, char *password, char *address, int op)
 {
     int sockfd, numbytes;  
     char buf[MAXDATASIZE];
@@ -87,7 +87,7 @@ static int client(char *username, char *password, char *address, int op)
         return 0;
     } else if (op == LOGIN) {
         char buff[1024];
-        sprintf(buff, "login\r\nusername %s\r\npassword %s\r\n\r\n", username, password);
+        sprintf(buff, "login\r\n%s\r\n%s\r\n\r\n", username, password);
         send(sockfd, buff, strlen(buff), 0);
         if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
             perror("recv");
@@ -124,7 +124,7 @@ static int client(char *username, char *password, char *address, int op)
 
             }
         } else {
-            printf("login failed, please try again\n");
+            printf("%s\n", buf);
             exit(0);
         }
     }

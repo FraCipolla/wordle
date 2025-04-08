@@ -13,10 +13,11 @@ int	play_game(char *word)
 	printf("Try a world: ");
 	scanf("%s", guess);
 	if (strlen(guess) != 5) {
-		printf("Error: word must be 5 characters long\n");
+		printf("\nError: word must be 5 characters long");
 		return (0);
 	} // controllare che sia una parola valida 
 	else if (strcmp(guess, word) == 0) {
+		printf("\033[30;42m %s \033[0m", guess);
 		printf("Congratulations! You guessed the word!\n");
 		// devo salvare tries + 1
 		tries = 0;
@@ -42,7 +43,7 @@ int	play_game(char *word)
 	}
 	printf("\n");
 	if (tries >= 6){
-		printf("You lose");
+		printf("You lose\nToo may tries");
 		tries = 0;
 		return (1);
 	}
@@ -51,7 +52,7 @@ int	play_game(char *word)
 
 int	main ()
 {
-	char word[6] = "test";
+	char word[6] = "testo";
 	while (1) {
 		if (play_game(word) == 1) {
 			break;

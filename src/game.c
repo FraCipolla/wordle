@@ -7,8 +7,6 @@
 #include "../include/wordle.h"
 #include "../include/users.h"
 
-char *choosen_word = "testo";
-
 static int is_inside(char c)
 {
 	for (int i = 0; i < 5; i++) {

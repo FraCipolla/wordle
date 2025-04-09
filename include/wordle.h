@@ -24,7 +24,7 @@ typedef struct words_s {
   int  size;
 } words_t;
 
-extern words_t words_arr[27];
+extern words_t words_load[27];
 extern char choosen_word[6];
 
 int serve(void);

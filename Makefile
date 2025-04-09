@@ -2,7 +2,7 @@ NAME=wordle
 SRC=main.c server.c client.c game.c users.c utility.c
 SRCDIR=src
 SRCS=$(addprefix $(SRCDIR)/, $(SRC))
-CC=gcc
+CC=cc
 CFLAGS=-Wall -Werror -Wextra -O3
 OBJDIR=obj
 OBJ = $(SRC:%.c=$(OBJDIR)/%.o)

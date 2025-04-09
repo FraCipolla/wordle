@@ -5,9 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-user_t *user_list;
-char *choosen_word;
-
 estatus_t get_status(char *username)
 {
     FILE *user;

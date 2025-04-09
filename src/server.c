@@ -15,8 +15,7 @@
 #include "../include/users.h"
 #include "../include/utility.h"
 
-words_t words_arr[27];
-char choosen_word[6];
+words_t words_load[27];
 user_t *user_list = {0};
 
 static int login(char *username, char *password)
@@ -91,6 +90,9 @@ void load_words()
             size++;
         }
     }
+    words_load[i].words = malloc(sizeof(char*) * size + 1);
+    words_load[i].words[size] = NULL;
+    words_load[i].size = size;
     fclose(words);
 
     words = fopen("words.txt", "r");
@@ -109,7 +111,9 @@ void load_words()
             c = word[0];
             j = 0;
         }
-        strncpy(words_load[i].words[j], word, 6);
+        words_load[i].words[j] = malloc(sizeof(char) * 6);
+        words_load[i].words[j][5] = 0;
+        strncpy(words_load[i].words[j], word, 5);
         j++;
     }
     fclose(words);
@@ -235,7 +239,7 @@ int serve(void)
     fd_count = 1; // For the listener
 
     load_words();
-    // Main loop
+    strcpy(choosen_word, "testo");
     for(;;) {
         int poll_count = poll(pfds, fd_count, -1);
 

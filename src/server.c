@@ -310,6 +310,9 @@ int serve(void)
                             char *username = strtok(NULL, "\r\n");
                             char *password = strtok(NULL, "\r\n");
                             int status = login(username, password);
+                            stat_t stats = get_stats(username);
+                            printf("%s %d %d %d %d\n", stats.password, stats.total_game, stats.total_win, stats.win_streak, stats.current_win_streak);
+                            paste_and_copy(username, stats);
                             switch (status)
                             {
                             case 1: {

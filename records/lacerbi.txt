@@ -1,6 +1,5 @@
 ciao
-0
-0
-0
-
-testo 6
+total play
+total win
+current streak
+best streak

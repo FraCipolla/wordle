@@ -346,7 +346,7 @@ int serve(void)
                             }
                             if (exists) {
                                 user_t *user = get_user(pfds[i].fd);
-                                increase_attempt(user->name);
+                                increase_attempt(user->name, 'z');
                                 guess_word(tok, pfds[i].fd);
                             } else {
                                 send(pfds[i].fd, "error\r\nYou must input a valid word", 35, 0);

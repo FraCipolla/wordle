@@ -122,7 +122,9 @@ int client(char *username, char *password, char *address, int op)
                         printf("Guess a 5 chars long word\n\n");
                         printf("%s\n\n", strtok(NULL, "\r\n"));
                         if (!strcmp(tok, "ko")) {
-                            return(0);
+                            printf("[p]lay    [l]eaderboard   [s]tats [q]uit\n\n");
+                            prompt();
+                            break;
                         }
                         play_game(sockfd);
                         printf("<<<<<<<<<<<<<<<<<<press enter to continue<<<<<<<<<<<<<<<<<<\n");

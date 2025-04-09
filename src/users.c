@@ -29,20 +29,10 @@ estatus_t get_status(char *username)
     if (status) { status[1]= 0; }
     // if status is NULL we are in the first attempt, so we add the word to the file
     if (!status) {
-        user =fopen(path, "r+");
-        r = fgets(line, 64, user);
-        r = fgets(line, 64, user);
-        int total_plays = atoi(line);
-        total_plays++;
-        
-        int pos = ftell(user);
-        fseek(user, pos - strlen(line), SEEK_SET);
-        fprintf(user, "%d\n", total_plays);
-        fclose(user);
         user = fopen(path, "a");
         fprintf(user, "\n%s %d\n", choosen_word, 0);
         fclose(user);
-        return NO_ATTEMPTS;
+        return NEW_WORD;
     } else if (!strcmp(status, "w") || !strcmp(status, "l")) {
         return END_GAME;
     }
@@ -57,7 +47,6 @@ void add_user(char *username, int socket)
     strcpy(new->name, username);
     new->socket = socket;
     new->next = NULL;
-    new->status = get_status(username);
 
     if (!user_list) {
         user_list = new;
@@ -89,7 +78,6 @@ void del_user(int socket)
 
 user_t *get_user(int socket)
 {
-    printf("getuser socket %d\n", socket);
     user_t *cpy = user_list;
     while (cpy->next && cpy->socket != socket) {
         cpy = cpy->next;

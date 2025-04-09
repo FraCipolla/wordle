@@ -5,12 +5,30 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <time.h>
+
+void setRandomWord()
+{
+    srand(time(NULL));
+    int alphabet = rand() % 27;
+    int word_n = rand() % words_load[alphabet].size;
+    strcpy(choosen_word, words_load[alphabet].words[word_n]);
+    printf("choosen word: %s\n", choosen_word);
+}
+
+long long timeInMilliseconds(void)
+{
+    struct timeval tv;
+
+    gettimeofday(&tv,NULL);
+    return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
+}
 
 void paste_and_copy(char *username, stat_t stats)
 {
     FILE *user;
     char path[1024];
-
     sprintf(path, "records/%s.txt", username);
     user = fopen(path, "r+");
 
@@ -20,7 +38,6 @@ void paste_and_copy(char *username, stat_t stats)
     char *r;
     int skips = 0;
     char tmp_path[1024];
-    stats.total_game = 0;
     sprintf(tmp_path, "records/%s_tmp.txt", username);
     FILE *tmp = fopen(tmp_path, "w");
     fprintf(tmp, "%s\n%d\n%d\n%d\n%d\n\n", stats.password, stats.total_game, stats.total_win, stats.win_streak, stats.current_win_streak);

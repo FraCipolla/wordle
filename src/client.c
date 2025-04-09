@@ -19,7 +19,6 @@ enum op {
     LOGIN
 };
 
-// get sockaddr, IPv4 or IPv6:
 static void *get_in_addr(struct sockaddr *sa)
 {
     if (sa->sa_family == AF_INET) {
@@ -32,7 +31,7 @@ static void *get_in_addr(struct sockaddr *sa)
 int client(char *username, char *password, char *address, int op)
 {
     int sockfd, numbytes;  
-    char buf[512];
+    char buf[1024];
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
@@ -46,24 +45,21 @@ int client(char *username, char *password, char *address, int op)
         return 1;
     }
 
-    // loop through all the results and connect to the first we can
     for(p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                 p->ai_protocol)) == -1) {
             perror("client: socket");
             continue;
         }
-
         if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
             close(sockfd);
             perror("client: connect");
             continue;
         }
-
         break;
     }
 
-    freeaddrinfo(servinfo); // all done with this structure
+    freeaddrinfo(servinfo);
 
     if (p == NULL) {
         fprintf(stderr, "client: failed to connect\n");
@@ -76,7 +72,7 @@ int client(char *username, char *password, char *address, int op)
         char buff[1024];
         sprintf(buff, "signup\n%s\n%s\n", username, password);
         send(sockfd, buff, strlen(buff), 0);
-        if ((numbytes = recv(sockfd, buf, 512, 0)) == -1) {
+        if ((numbytes = recv(sockfd, buf, 1024, 0)) == -1) {
             perror("recv");
             exit(1);
         }
@@ -88,19 +84,18 @@ int client(char *username, char *password, char *address, int op)
         char buff[1024];
         sprintf(buff, "login\r\n%s\r\n%s\r\n\r\n", username, password);
         send(sockfd, buff, strlen(buff), 0);
-        if ((numbytes = recv(sockfd, buf, 512, 0)) == -1) {
+        if ((numbytes = recv(sockfd, buf, 1024, 0)) == -1) {
             perror("recv");
             exit(1);
         }
         buf[numbytes] = '\0';
-        // char *tok = strtok(buf, "\r\n");
-        if (!strcmp(buf, "accept")) {
+        char *tok = strtok(buf, "\r\n");
+        if (!strcmp(tok, "accept")) {
             char input[128];
             int n_read;
             printf("login succesfull!\n%s\n", WORDLE);
-            printf("Welcome back %s!\n[p]lay    [l]eaderboard   [s]tats [q]uit\n\n", username);
-            int w = write(1, "wordle> ", 9);
-            if (w <= 0) { exit(0); }
+            printf("Welcome back %s!\n[p]lay    [s]tats    [q]uit\n\n", username);
+            prompt();
             while((n_read = read(0, input, 128))) {
                 input[n_read - 1] = 0;
                 if (n_read == 0) {
@@ -112,7 +107,7 @@ int client(char *username, char *password, char *address, int op)
                 switch (input[0]) {
                     case 'p': {
                         send(sockfd, "play", 5, 0);
-                        if ((numbytes = recv(sockfd, buf, 512, 0)) == -1) {
+                        if ((numbytes = recv(sockfd, buf, 1024, 0)) == -1) {
                             perror("recv");
                             exit(1);
                         }
@@ -122,7 +117,7 @@ int client(char *username, char *password, char *address, int op)
                         printf("Guess a 5 chars long word\n\n");
                         printf("%s\n\n", strtok(NULL, "\r\n"));
                         if (!strcmp(tok, "ko")) {
-                            printf("[p]lay    [l]eaderboard   [s]tats [q]uit\n\n");
+                            printf("[p]lay  [s]tats    [q]uit\n\n");
                             prompt();
                             break;
                         }
@@ -132,16 +127,27 @@ int client(char *username, char *password, char *address, int op)
                         int s = system("@cls||clear");
                         if (s < 0) { exit(0); }
                         printf("\n%s\n", WORDLE);
-                        printf("Welcome back %s!\n[p]lay    [l]eaderboard   [s]tats [q]uit\n\n", username);
+                        printf("Welcome back %s!\n[p]lay    [s]tats    [q]uit\n\n", username);
                         prompt();
                         break;
                     }
                     case 'l': /* leaderboard */ break;
-                    case 's': /* stats */ break;
+                    case 's': {
+                        send(sockfd, "stats", 6, 0);
+                        if ((numbytes = recv(sockfd, buf, 1024, 0)) == -1) {
+                            perror("recv");
+                            exit(1);
+                        }
+                        buf[numbytes] = '\0';
+                        printf("\n%s\n\n", buf);
+                        printf("[p]lay    [s]tats    [q]uit\n\n");
+                        prompt();
+                        break;
+                    }
                     case 'q': printf("See you soon %s!\n", username); exit(0);
                     default:
                     printf("\nerror: wrong input, please insert one of the following:\n");
-                    printf("[p] play    [l] leaderboard   [s] stats [q] quit\n\n");
+                    printf("[p]lay    [s]tats    [q]uit\n\n");
                     prompt();
                     break;
                 }

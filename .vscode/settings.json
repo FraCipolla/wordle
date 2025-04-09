@@ -4,7 +4,8 @@
         "netdb.h": "c",
         "types.h": "c",
         "users.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "time.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

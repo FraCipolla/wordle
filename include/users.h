@@ -2,6 +2,7 @@
 #define __USERS_H__
 
 typedef enum {
+    NEW_WORD = -1,
     NO_ATTEMPTS,
     ONE_ATTEMPTS,
     TWO_ATTEMPTS,
@@ -15,7 +16,6 @@ typedef enum {
 typedef struct user_s {
     char name[32];
     int socket;
-    estatus_t status;
     struct user_s *next;
 }   user_t;
 

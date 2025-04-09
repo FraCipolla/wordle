@@ -27,7 +27,12 @@ int guess_word(char *guess, int socket)
 	memset(fmt, 0, sizeof(fmt));
 	memset(msg, 0, sizeof(msg));
 	if (strcmp(guess, choosen_word) == 0) {
+		stat_t stats = get_stats(user->name);
+		stats.total_win++;
+		stats.win_streak++;
+		stats.current_win_streak++;
 		increase_attempt(user->name, 'w');
+		paste_and_copy(user->name, stats);
 		sprintf(msg, "win\r\n\033[30;42m %c %c %c %c %c \033[0m", guess[0], guess[1], guess[2], guess[3], guess[4]);
 		send(socket, msg, strlen(msg), 0);
 		return 1;
@@ -52,7 +57,13 @@ int guess_word(char *guess, int socket)
 	int attempts = 6 - status;
 	char append[512];
 	if (attempts == 0) {
+		stat_t stats = get_stats(user->name);
+		if (stats.current_win_streak > stats.win_streak) {
+			stats.win_streak = stats.current_win_streak;
+		}
+		stats.current_win_streak = 0;
 		increase_attempt(user->name, 'l');
+		paste_and_copy(user->name, stats);
 		sprintf(append, "end\r\n%s", msg);
 	} else {
 		sprintf(append, "skip\r\nAttempts left: %d\r\n%s", attempts, msg);
@@ -69,6 +80,7 @@ void play_game(int socket)
 	int numbytes = 0;
 	
 	while (1) {
+		printf("enter exit to exit\n\n");
 		prompt();
 		memset(guess, 0, sizeof(guess));
 		memset(msg, 0, sizeof(msg));

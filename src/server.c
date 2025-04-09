@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <poll.h>
+#include <time.h>
 
 #define PORT "9034"
 
@@ -239,7 +240,11 @@ int serve(void)
     fd_count = 1; // For the listener
 
     load_words();
-    strcpy(choosen_word, "testo");
+    srand(time(NULL));
+    int alphabet = rand() % 27;
+    int word_n = rand() % words_load[alphabet].size;
+    strcpy(choosen_word, words_load[alphabet].words[word_n]);
+    printf("choosen word: %s\n", choosen_word);
     for(;;) {
         int poll_count = poll(pfds, fd_count, -1);
 
@@ -328,9 +333,24 @@ int serve(void)
                             send(pfds[i].fd, msg, strlen(msg), 0);
                         } else if (!strcmp(op, "guess")) {
                             char *tok = strtok(NULL, "\r\n");
-                            user_t *user = get_user(pfds[i].fd);
-                            increase_attempt(user->name);
-                            guess_word(tok, pfds[i].fd);
+                            char **words_arr = words_load[tok[0] - 97].words;
+                            int exists = 0;
+                            for (int i = 0; i < words_load[tok[0] - 97].size; i++) {
+                                if (!strcmp(words_arr[i], tok)) {
+                                    exists = 1;
+                                    break;
+                                }
+                                // if (words_arr[i][1] > tok[1]) {
+                                //     break;
+                                // }
+                            }
+                            if (exists) {
+                                user_t *user = get_user(pfds[i].fd);
+                                increase_attempt(user->name);
+                                guess_word(tok, pfds[i].fd);
+                            } else {
+                                send(pfds[i].fd, "error\r\nYou must input a valid word", 35, 0);
+                            }
                         }
                     }
                 } // END handle data from client

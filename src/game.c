@@ -6,6 +6,7 @@
 
 #include "../include/wordle.h"
 #include "../include/users.h"
+#include "../include/utility.h"
 
 static int is_inside(char c)
 {
@@ -65,16 +66,11 @@ void play_game(int socket)
 	char msg[64];
 	int numbytes = 0;
 	
-	PROMPT
-	int x = write(1, "Guess a 5 chars long word\n", 27);
 	while (1) {
-		PROMPT
+		prompt();
 		memset(guess, 0, sizeof(guess));
 		memset(msg, 0, sizeof(msg));
 		memset(buf, 0, sizeof(buf));
-		if (x <= 0) {
-			printf("Something went wrong, please try again\n");
-		}
 		int n = scanf("%s", guess);
 		if (!guess[0]) { exit(0); } // EOF case
 		if (n <= 0) { continue; }
@@ -96,6 +92,8 @@ void play_game(int socket)
 				printf("\n%s\n\n", strtok(NULL, "\r\n"));
 				printf("Congratulations! You found the correct word!\n\n");
 				return ;
+			} else if (!strcmp("error", tok)) {
+				printf("\n%s\n\n", strtok(NULL, "\r\n"));
 			} else {
 				printf("\n%s\n\n%s\n\n", strtok(NULL, "\r\n"), strtok(NULL, "\r\n"));
 			}

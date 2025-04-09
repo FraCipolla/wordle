@@ -10,10 +10,9 @@
 #include <arpa/inet.h>
 
 #include "../include/wordle.h"
+#include "../include/utility.h"
 
 #define PORT "9034" // the port client will be connecting to 
-
-#define MAXDATASIZE 512 // max number of bytes we can get at once 
 
 enum op {
     SIGNUP,
@@ -33,7 +32,7 @@ static void *get_in_addr(struct sockaddr *sa)
 int client(char *username, char *password, char *address, int op)
 {
     int sockfd, numbytes;  
-    char buf[MAXDATASIZE];
+    char buf[512];
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
@@ -77,7 +76,7 @@ int client(char *username, char *password, char *address, int op)
         char buff[1024];
         sprintf(buff, "signup\n%s\n%s\n", username, password);
         send(sockfd, buff, strlen(buff), 0);
-        if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+        if ((numbytes = recv(sockfd, buf, 512, 0)) == -1) {
             perror("recv");
             exit(1);
         }
@@ -89,81 +88,67 @@ int client(char *username, char *password, char *address, int op)
         char buff[1024];
         sprintf(buff, "login\r\n%s\r\n%s\r\n\r\n", username, password);
         send(sockfd, buff, strlen(buff), 0);
-        if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+        if ((numbytes = recv(sockfd, buf, 512, 0)) == -1) {
             perror("recv");
             exit(1);
         }
         buf[numbytes] = '\0';
         // char *tok = strtok(buf, "\r\n");
         if (!strcmp(buf, "accept")) {
-            char input;
+            char input[128];
             int n_read;
             printf("login succesfull!\n%s\n", WORDLE);
-            printf("Welcome back %s!\n[p]lay    [l]eaderboard   [s]tats [q]uit\n\n ", username);
+            printf("Welcome back %s!\n[p]lay    [l]eaderboard   [s]tats [q]uit\n\n", username);
             int w = write(1, "wordle> ", 9);
             if (w <= 0) { exit(0); }
-            while((n_read = read(0, &input, 1))) {
+            while((n_read = read(0, input, 128))) {
+                input[n_read - 1] = 0;
                 if (n_read == 0) {
                     continue;
-                }
-                switch (input)
-                {
-                case 'p': {
-                    send(sockfd, "play", 5, 0);
-                    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-                        perror("recv");
-                        exit(1);
+                } else if (strlen(input) > 1 && strcmp(input, "play") != 0 && strcmp(input, "leaderboard") != 0
+                        && strcmp(input, "quit") != 0 && strcmp(input, "score") != 0) {
+                            input[0] = 'z';
                     }
-                    buf[numbytes] = '\0';
-                    char *tok = strtok(buf, "\r\n");
-                    PROMPT
-                    printf("%s\n", strtok(NULL, "\r\n"));
-                    if (!strcmp(tok, "ko")) {
-                        return(0);
+                switch (input[0]) {
+                    case 'p': {
+                        send(sockfd, "play", 5, 0);
+                        if ((numbytes = recv(sockfd, buf, 512, 0)) == -1) {
+                            perror("recv");
+                            exit(1);
+                        }
+                        buf[numbytes] = '\0';
+                        char *tok = strtok(buf, "\r\n");
+                        prompt();
+                        printf("Guess a 5 chars long word\n\n");
+                        printf("%s\n\n", strtok(NULL, "\r\n"));
+                        if (!strcmp(tok, "ko")) {
+                            return(0);
+                        }
+                        play_game(sockfd);
+                        printf("<<<<<<<<<<<<<<<<<<press enter to continue<<<<<<<<<<<<<<<<<<\n");
+                        read(1, input, 128);
+                        int s = system("@cls||clear");
+                        if (s < 0) { exit(0); }
+                        printf("\n%s\n", WORDLE);
+                        printf("Welcome back %s!\n[p]lay    [l]eaderboard   [s]tats [q]uit\n\n", username);
+                        prompt();
+                        break;
                     }
-                    play_game(sockfd);
-                    int s = system("clear");
-                    if (s < 0) { exit(0); }
-                    printf("\n%s\n", WORDLE);
-                    printf("Welcome back %s!\n[p]lay    [l]eaderboard   [s]tats [q]uit\n\n ", username);
+                    case 'l': /* leaderboard */ break;
+                    case 's': /* stats */ break;
+                    case 'q': printf("See you soon %s!\n", username); exit(0);
+                    default:
+                    printf("\nerror: wrong input, please insert one of the following:\n");
+                    printf("[p] play    [l] leaderboard   [s] stats [q] quit\n\n");
+                    prompt();
                     break;
                 }
-                case 'l': /* leaderboard */ break;
-                case 's': /* stats */ break;
-                case 'q': printf("See you soon %s!\n", username); exit(0);
-                default:
-                printf("\nerror: wrong input, please insert one of the following:\n");
-                printf("[p] play    [l] leaderboard   [s] stats [q] quit\n\n");
-                break;
-                }
-                printf("%c", input);
-                char cmd[32];
-                cmd[0] = input;
-                input = 0;
-                n_read = read(0, &cmd[1], 31);
+                memset(input, 0, sizeof(input));
             }
         } else {
             printf("%s\n", buf);
             exit(0);
         }
     }
-    return 0;
-}
-
-int signup(char *argv[])
-{
-    char *username = strtok(argv[0], ":");
-    char *password = strtok(NULL, "");
-
-    // printf("username %s password %s address %s\n", username, password, argv[1]);
-    client(username, password, argv[1], SIGNUP);
-    return 0;
-}
-
-int login(char *argv[])
-{
-    char *username = strtok(argv[0], ":");
-    char *password = strtok(NULL, "");
-    client(username, password, argv[1], LOGIN);
     return 0;
 }

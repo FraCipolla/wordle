@@ -8,7 +8,6 @@
              \t - signup <username>:<password> <url>:  create a new user to remote server\n \
              \t - login <username>:<password> <url>:   login to remote server\n\n \
              After logging in follow the instructions to play!\n\n"
-#define PROMPT int prompt = write(1, "wordle> ", 9); if (prompt <= 0) exit(0);
 
 #define WORDLE \
 "                        _ _         \n \

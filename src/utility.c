@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 int increase_attempt(char *username)
 {
@@ -33,4 +34,10 @@ int increase_attempt(char *username)
     }
     fclose(user);
     return 0;
+}
+
+void prompt()
+{
+    int prompt = write(1, "wordle> ", 9);
+    if (prompt <= 0) exit(0);
 }

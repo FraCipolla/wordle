@@ -21,11 +21,13 @@ int increase_attempt(char *username)
     while ((r = fgets(line, 64, user))) {
         char *word = strtok(line, " ");
         if (!strcmp(word, choosen_word)) {
-            fseek(user, -1, SEEK_CUR);
+            printf("pos: %ld\n", ftell(user));
+            fseek(user, -2, SEEK_CUR);
             status = strtok(NULL, " ");
             char c = status[0];
             c++;
             fputc(c, user);
+            fclose(user);
             return atoi(&c);
         }
     }

@@ -319,7 +319,7 @@ int serve(void)
                         } else if (!strcmp(op, "play")) {
                             user_t *user = get_user(pfds[i].fd);
                             if (user->status == END_GAME) {
-                                send(pfds[i].fd, "ko\r\nYou have no more attempts for today, wait tomorrow for the next word!\r\n", 70, 0);    
+                                send(pfds[i].fd, "ko\r\nYou have no more attempts for today, wait tomorrow for the next word!\r\n", 76, 0);    
                             }
                             int attempts = 6 - get_status(user->name);
                             char msg[256];
@@ -327,17 +327,9 @@ int serve(void)
                             send(pfds[i].fd, msg, strlen(msg), 0);
                         } else if (!strcmp(op, "guess")) {
                             char *tok = strtok(NULL, "\r\n");
-                            if (guess_word(tok, pfds[i].fd)) {
-                                // correct answer
-                                send(pfds[i].fd, "\nCongratulations! You guessed the right word!", 47, 0);
-                            } else {
-                                // increase attempts
-                                user_t *user = get_user(pfds[i].fd);
-                                estatus_t status = increase_attempt(user->name);
-                                if (status == END_GAME) {
-                                    
-                                }
-                            }
+                            user_t *user = get_user(pfds[i].fd);
+                            increase_attempt(user->name);
+                            guess_word(tok, pfds[i].fd);
                         }
                     }
                 } // END handle data from client

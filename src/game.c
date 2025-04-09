@@ -27,7 +27,7 @@ int guess_word(char *guess, int socket)
 	memset(fmt, 0, sizeof(fmt));
 	memset(msg, 0, sizeof(msg));
 	if (strcmp(guess, choosen_word) == 0) {
-		sprintf(msg, "\033[30;42m %c %c %c %c %c \033[0m", guess[0], guess[1], guess[2], guess[3], guess[4]);
+		sprintf(msg, "win\r\n\033[30;42m %c %c %c %c %c \033[0m", guess[0], guess[1], guess[2], guess[3], guess[4]);
 		send(socket, msg, strlen(msg), 0);
 		return 1;
 	} else {
@@ -50,23 +50,27 @@ int guess_word(char *guess, int socket)
 	user_t *user = get_user(socket);
 	estatus_t status = get_status(user->name);
 	int attempts = 6 - status;
-	char append[21];
-	sprintf(append, "\n\nAttempts left: %d\n", attempts);
-	strcat(msg, append);
-	send(socket, msg, strlen(msg), 0);
+	char append[512];
+	if (attempts == 0) {
+		sprintf(append, "end\r\n%s", msg);
+	} else {
+		sprintf(append, "skip\r\nAttempts left: %d\r\n%s", attempts, msg);
+	}
+	send(socket, append, strlen(append), 0);
 	return 0;
 }
 
 void play_game(int socket)
 {
 	char guess[32];
-	char buf[128];
+	char buf[256];
 	char msg[64];
 	int numbytes = 0;
 	
 	PROMPT
-	int x = write(1, "Guess a 5 chars long word: ", 28);
+	int x = write(1, "Guess a 5 chars long word\n", 27);
 	while (1) {
+		PROMPT
 		memset(guess, 0, sizeof(guess));
 		memset(msg, 0, sizeof(msg));
 		memset(buf, 0, sizeof(buf));
@@ -81,11 +85,22 @@ void play_game(int socket)
 		} else {
 			sprintf(msg, "guess\r\n%s", guess);
 			send(socket, msg, strlen(msg), 0);
-			if ((numbytes = recv(socket, buf, 128, 0)) == -1) {
+			if ((numbytes = recv(socket, buf, 256, 0)) == -1) {
 				perror("recv");
 				exit(1);
 			}
-			printf("\n%s\n\n", buf);
+			char *tok = strtok(buf, "\r\n");
+			if (!strcmp("end", tok)) {
+				printf("\n%s\n\n", strtok(NULL, "\r\n"));
+				printf("Oh no! You miss the correct word!\n\n");
+				return ;
+			} else if (!strcmp("win", tok)) {
+				printf("\n%s\n\n", strtok(NULL, "\r\n"));
+				printf("Congratulations! You found the correct word!\n\n");
+				return ;
+			} else {
+				printf("\n%s\n\n%s\n\n", strtok(NULL, "\r\n"), strtok(NULL, "\r\n"));
+			}
 		}
 	}
 }

@@ -25,7 +25,6 @@ estatus_t get_status(char *username)
         char *word = strtok(line, " ");
         if (!strcmp(word, choosen_word)) {
             status = strtok(NULL, " ");
-            printf("status %s\n", status);
             break;
         }
     }
@@ -67,12 +66,15 @@ void del_user(int socket)
 {
     printf("deluser socket %d\n", socket);
     user_t *cpy = user_list;
-    while (cpy->next && cpy->socket != socket) {
+    if (!cpy) {
+        return ;
+    }
+    while (cpy->next && cpy->next->socket != socket) {
         cpy = cpy->next;
     }
-    if (cpy->socket == socket) {
-        user_t *tmp = cpy;
-        cpy = cpy->next;
+    if (cpy->next && cpy->next->socket == socket) {
+        user_t *tmp = cpy->next;
+        cpy = cpy->next->next;
         free(tmp);
     }
 }

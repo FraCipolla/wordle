@@ -19,7 +19,12 @@ __      _____  _ __ __| | | ___    \n \
   \\_/\\_/ \\___/|_|  \\__,_|_|\\___|   \n \
 "                               
 
-extern char **words_arr[27];
+typedef struct words_s {
+  char **words;
+  size_t  size;
+} words_t;
+
+extern words_t words_arr[27];
 extern char *choosen_word;
 
 int serve(void);

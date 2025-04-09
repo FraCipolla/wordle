@@ -122,6 +122,10 @@ int client(char *username, char *password, char *address, int op)
                         return(0);
                     }
                     play_game(sockfd);
+                    int s = system("clear");
+                    if (s < 0) { exit(0); }
+                    printf("\n%s\n", WORDLE);
+                    printf("Welcome back %s!\n[p]lay    [l]eaderboard   [s]tats [q]uit\n\n ", username);
                     break;
                 }
                 case 'l': /* leaderboard */ break;

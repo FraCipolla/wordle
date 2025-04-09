@@ -5,7 +5,7 @@ SRCS=$(addprefix $(SRCDIR)/, $(SRC))
 CC=gcc
 CFLAGS=-Wall -Werror -Wextra -O3
 OBJDIR=obj
-OBJ = $(SRCS:%.c=$(OBJDIR)/%.o)
+OBJ = $(SRC:%.c=$(OBJDIR)/%.o)
 
 all: $(NAME)
 
@@ -13,7 +13,7 @@ $(NAME): $(OBJ)
 	@echo "Compiling $(NAME)"
 	@$(CC) $(OBJ) -o $(NAME)
 
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(@D)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
@@ -27,3 +27,6 @@ fclean: clean
 	@rm -f $(NAME)
 
 re: fclean all
+
+.PHONY: all clean fclean re
+.SILENT:

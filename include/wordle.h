@@ -21,10 +21,11 @@ __      _____  _ __ __| | | ___    \n \
 
 typedef struct words_s {
   char **words;
-  size_t  size;
+  int  size;
 } words_t;
 
 extern words_t words_arr[27];
+// extern char **words_arr[27];
 extern char *choosen_word;
 
 int serve(void);

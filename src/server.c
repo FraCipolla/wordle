@@ -15,7 +15,7 @@
 #include "../include/users.h"
 #include "../include/utility.h"
 
-char **words_arr[27];
+words_t words_load[27];
 char *choosen_word;
 user_t *user_list = {0};
 
@@ -75,15 +75,15 @@ void load_words()
         printf("error: cannot open words.txt\n");
         exit(1);
     }
-    printf("file open\n");
     int i = 0;
     char c = 'a';
     char *word;
     int size = 0;
     while ((word = fgets(buffer, 8, words))) {
         if (word[0] != c) {
-            words_arr[i] = malloc(sizeof(char**) * size + 1);
-            words_arr[i][size] = NULL;
+            words_load[i].words = malloc(sizeof(char*) * size + 1);
+            words_load[i].words[size] = NULL;
+            words_load[i].size = size;
             i++;
             c = word[0];
             size = 1;
@@ -91,8 +91,6 @@ void load_words()
             size++;
         }
     }
-    words_arr[i] = malloc(sizeof(char**) * size + 1);
-    words_arr[i][size] = NULL;
     fclose(words);
 
     words = fopen("words.txt", "r");
@@ -111,8 +109,7 @@ void load_words()
             c = word[0];
             j = 0;
         }
-        words_arr[i][j] = malloc(sizeof(char) * 6);
-        strncpy(words_arr[i][j], word, 6);
+        strncpy(words_load[i].words[j], word, 6);
         j++;
     }
     fclose(words);

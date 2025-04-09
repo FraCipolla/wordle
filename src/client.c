@@ -121,9 +121,13 @@ int client(char *username, char *password, char *address, int op)
                     if (!strcmp(tok, "ko")) {
                         return(0);
                     }
+                    int fd_in = dup(0);
                     play_game(sockfd);
-                    int s = system("clear");
-                    if (s < 0) { exit(0); }
+                    // int s = system("clear");
+                    // if (s < 0) { exit(0); }
+                    
+                    close(0);
+                    dup2(fd_in, 0);
                     printf("\n%s\n", WORDLE);
                     printf("Welcome back %s!\n[p]lay    [l]eaderboard   [s]tats [q]uit\n\n ", username);
                     break;

@@ -329,7 +329,7 @@ int serve(void)
                         } else if (!strcmp(op, "guess")) {
                             char *tok = strtok(NULL, "\r\n");
                             user_t *user = get_user(pfds[i].fd);
-                            increase_attempt(user->name);
+                            increase_attempt(user->name, 0);
                             guess_word(tok, pfds[i].fd);
                         }
                     }

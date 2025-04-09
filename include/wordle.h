@@ -25,7 +25,7 @@ typedef struct words_s {
 } words_t;
 
 extern words_t words_arr[27];
-extern char *choosen_word;
+extern char choosen_word[6];
 
 int serve(void);
 int client(char *username, char *password, char *address, int op);

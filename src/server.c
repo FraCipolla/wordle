@@ -16,7 +16,7 @@
 #include "../include/utility.h"
 
 char **words_arr[27];
-char *choosen_word;
+char choosen_word[6];
 user_t *user_list = {0};
 
 static int login(char *username, char *password)
@@ -318,7 +318,7 @@ int serve(void)
                             }
                         } else if (!strcmp(op, "play")) {
                             user_t *user = get_user(pfds[i].fd);
-                            if (user->status == END_GAME) {
+                            if (get_status(user->name) == END_GAME) {
                                 send(pfds[i].fd, "ko\r\nYou have no more attempts for today, wait tomorrow for the next word!\r\n", 76, 0);    
                             }
                             int attempts = 6 - get_status(user->name);

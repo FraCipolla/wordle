@@ -8,3 +8,5 @@ wordle login <username>:<password> <url>
 
 After login, show a menu of the possible choices:
 [p] play    [l] leaderboard   [s] stats
+
+invertire tentativi con info len parola

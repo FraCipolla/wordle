@@ -327,8 +327,8 @@ int serve(void)
                             stat_t stats = get_stats(user->name);
                             sprintf(
                                 msg,
-                                "total game: %d\ntotal win: %d\nmax win streak: %d\ncurrent win streak: %d\nwin ratio: %d%%",
-                                stats.total_game, stats.total_win, stats.win_streak, stats.current_win_streak, stats.total_game == 0 ? 0 : ((stats.total_win / stats.total_game) * 100)
+                                "total game: %d\ntotal win: %d\nmax win streak: %d\ncurrent win streak: %d\nwin ratio: %f%%",
+                                stats.total_game, stats.total_win, stats.win_streak, stats.current_win_streak, stats.total_game == 0 ? 0 : (float)(((float)stats.total_win / (float)stats.total_game) * 100)
                             );
                             send(pfds[i].fd, msg, strlen(msg), 0);
                         }

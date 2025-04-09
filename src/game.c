@@ -29,8 +29,10 @@ int guess_word(char *guess, int socket)
 	if (strcmp(guess, choosen_word) == 0) {
 		stat_t stats = get_stats(user->name);
 		stats.total_win++;
-		stats.win_streak++;
 		stats.current_win_streak++;
+		if (stats.current_win_streak > stats.win_streak) {
+			stats.win_streak = stats.current_win_streak;
+		}
 		increase_attempt(user->name, 'w');
 		paste_and_copy(user->name, stats);
 		sprintf(msg, "win\r\n\033[30;42m %c %c %c %c %c \033[0m", guess[0], guess[1], guess[2], guess[3], guess[4]);

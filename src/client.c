@@ -100,7 +100,7 @@ int client(char *username, char *password, char *address, int op)
             int n_read;
             printf("login succesfull!\n%s\n", WORDLE);
             printf("Welcome back %s!\n[p]lay    [l]eaderboard   [s]tats [q]uit\n\n ", username);
-            int w = write(1, "wordle> ", 8);
+            int w = write(1, "wordle> ", 9);
             if (w <= 0) { exit(0); }
             while((n_read = read(0, &input, 1))) {
                 if (n_read == 0) {
@@ -116,7 +116,8 @@ int client(char *username, char *password, char *address, int op)
                     }
                     buf[numbytes] = '\0';
                     char *tok = strtok(buf, "\r\n");
-                    printf("%s", strtok(NULL, "\r\n"));
+                    PROMPT
+                    printf("%s\n", strtok(NULL, "\r\n"));
                     if (!strcmp(tok, "ko")) {
                         return(0);
                     }
@@ -136,7 +137,6 @@ int client(char *username, char *password, char *address, int op)
                 cmd[0] = input;
                 input = 0;
                 n_read = read(0, &cmd[1], 31);
-
             }
         } else {
             printf("%s\n", buf);

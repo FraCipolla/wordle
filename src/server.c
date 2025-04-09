@@ -15,6 +15,7 @@
 #include "../include/users.h"
 
 char **words_arr[27];
+char *choosen_word;
 user_t *user_list = {0};
 
 static int login(char *username, char *password)
@@ -321,10 +322,14 @@ int serve(void)
                             }
                             int attempts = 6 - (int)user->status;
                             char msg[256];
-                            sprintf(msg, "ok\r\nAttempts left: %d\n", attempts);
+                            sprintf(msg, "ok\r\nAttempts left: %d\r\n", attempts);
                             send(pfds[i].fd, msg, strlen(msg), 0);
                         } else if (!strcmp(op, "guess")) {
                             char *tok = strtok(NULL, "\r\n");
+                            if (guess_word(tok, pfds[i].fd)) {
+                                // correct answer
+                                send(pfds[i].fd, "\nCongratulations! You guessed the right word!", 47, 0);
+                            }
                         }
                     }
                 } // END handle data from client

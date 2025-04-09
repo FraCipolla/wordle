@@ -26,8 +26,19 @@ estatus_t get_status(char *username)
         }
     }
     fclose(user);
+    if (status) { status[1]= 0; }
     // if status is NULL we are in the first attempt, so we add the word to the file
     if (!status) {
+        user =fopen(path, "r+");
+        r = fgets(line, 64, user);
+        r = fgets(line, 64, user);
+        int total_plays = atoi(line);
+        total_plays++;
+        
+        int pos = ftell(user);
+        fseek(user, pos - strlen(line), SEEK_SET);
+        fprintf(user, "%d\n", total_plays);
+        fclose(user);
         user = fopen(path, "a");
         fprintf(user, "\n%s %d\n", choosen_word, 0);
         fclose(user);

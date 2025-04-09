@@ -76,7 +76,10 @@ void play_game(int socket)
 		int n = scanf("%s", guess);
 		if (!guess[0]) { exit(0); } // EOF case
 		if (n <= 0) { continue; }
-		if (strlen(guess) != 5) {
+		if (!strcmp(guess, "exit")) {
+			return ;
+		}
+		else if (strlen(guess) != 5) {
 			printf("Error: word must be 5 characters long\n");
 		} else {
 			sprintf(msg, "guess\r\n%s", guess);

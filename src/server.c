@@ -55,7 +55,7 @@ static int register_user(char *username, char *password)
     user = fopen(path, "r");
     if (!user) {
         user = fopen(path, "w");
-        fprintf(user, "%s\n%s\n%s\n%s\n", password, "0", "0", "0");
+        fprintf(user, "%s\n%s\n%s\n%s\n%s\n", password, "0", "0", "0", "0");
         fclose(user);
     } else {
         fclose(user);
@@ -328,12 +328,14 @@ int serve(void)
                         } else if (!strcmp(op, "play")) {
                             user_t *user = get_user(pfds[i].fd);
                             if (get_status(user->name) == END_GAME) {
-                                send(pfds[i].fd, "ko\r\nYou have no more attempts for today, wait tomorrow for the next word!\r\n", 76, 0);    
+                                send(pfds[i].fd, "ko\r\nYou have no more attempts for today, wait tomorrow for the next word!\r\n", 76, 0);
                             }
-                            int attempts = 6 - get_status(user->name);
-                            char msg[256];
-                            sprintf(msg, "ok\r\nAttempts left: %d\r\n", attempts);
-                            send(pfds[i].fd, msg, strlen(msg), 0);
+                            else {
+                                int attempts = 6 - get_status(user->name);
+                                char msg[256];
+                                sprintf(msg, "ok\r\nAttempts left: %d\r\n", attempts);
+                                send(pfds[i].fd, msg, strlen(msg), 0);
+                            }
                         } else if (!strcmp(op, "guess")) {
                             char *tok = strtok(NULL, "\r\n");
                             char **words_arr = words_load[tok[0] - 97].words;

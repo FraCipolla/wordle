@@ -1,13 +1,20 @@
 password1234
 0
+<<<<<<< HEAD
 2
 3
 4
+=======
+0
+0
+0
+>>>>>>> 50e5e24ec7125e255ef470a5edd87ab8cf478907
 
 testo w
 
 house 1
 
+<<<<<<< HEAD
 doomy 0
 
 mammy 0
@@ -91,3 +98,6 @@ xeric 0
 okehs 0
 
 mussy 0
+=======
+vogie 0
+>>>>>>> 50e5e24ec7125e255ef470a5edd87ab8cf478907

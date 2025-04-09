@@ -20,12 +20,14 @@ static int is_inside(char c)
 
 int guess_word(char *guess, int socket)
 {
+	user_t *user = get_user(socket);
 	char msg[256];
 	char fmt[32];
 
 	memset(fmt, 0, sizeof(fmt));
 	memset(msg, 0, sizeof(msg));
 	if (strcmp(guess, choosen_word) == 0) {
+		increase_attempt(user->name, 'w');
 		sprintf(msg, "win\r\n\033[30;42m %c %c %c %c %c \033[0m", guess[0], guess[1], guess[2], guess[3], guess[4]);
 		send(socket, msg, strlen(msg), 0);
 		return 1;
@@ -46,11 +48,11 @@ int guess_word(char *guess, int socket)
 			}
 		}
 	}
-	user_t *user = get_user(socket);
 	estatus_t status = get_status(user->name);
 	int attempts = 6 - status;
 	char append[512];
 	if (attempts == 0) {
+		increase_attempt(user->name, 'l');
 		sprintf(append, "end\r\n%s", msg);
 	} else {
 		sprintf(append, "skip\r\nAttempts left: %d\r\n%s", attempts, msg);

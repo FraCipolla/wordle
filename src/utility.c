@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int increase_attempt(char *username)
+int increase_attempt(char *username, char c)
 {
     FILE *user;
     char path[1024];
@@ -22,10 +22,19 @@ int increase_attempt(char *username)
     while ((r = fgets(line, 64, user))) {
         char *word = strtok(line, " ");
         if (!strcmp(word, choosen_word)) {
-            printf("pos: %ld\n", ftell(user));
             fseek(user, -2, SEEK_CUR);
             status = strtok(NULL, " ");
-            char c = status[0];
+            if (c == 'w') {
+                fputc('w', user);
+                fclose(user);
+                return 0;
+            }
+            else if (c == 'l') {
+                fputc('l', user);
+                fclose(user);
+                return 0;
+            }
+            c = status[0];
             c++;
             fputc(c, user);
             fclose(user);

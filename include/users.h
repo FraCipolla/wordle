@@ -24,5 +24,6 @@ extern user_t *user_list;
 void add_user(char *username, int socket);
 void del_user(int socket);
 user_t *get_user(int socket);
+estatus_t get_status(char *username);
 
 #endif

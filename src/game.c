@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include "../include/wordle.h"
+#include "../include/users.h"
 
 char *choosen_word = "testo";
 
@@ -46,6 +47,12 @@ int guess_word(char *guess, int socket)
 			}
 		}
 	}
+	user_t *user = get_user(socket);
+	estatus_t status = get_status(user->name);
+	int attempts = 6 - status;
+	char append[21];
+	sprintf(append, "\n\nAttempts left: %d\n", attempts);
+	strcat(msg, append);
 	send(socket, msg, strlen(msg), 0);
 	return 0;
 }
@@ -56,13 +63,13 @@ void play_game(int socket)
 	char buf[128];
 	char msg[64];
 	int numbytes = 0;
-
+	
+	PROMPT
+	int x = write(1, "Guess a 5 chars long word: ", 28);
 	while (1) {
 		memset(guess, 0, sizeof(guess));
 		memset(msg, 0, sizeof(msg));
 		memset(buf, 0, sizeof(buf));
-		PROMPT
-		int x = write(1, "Guess a 5 chars long word: ", 28);
 		if (x <= 0) {
 			printf("Something went wrong, please try again\n");
 		}

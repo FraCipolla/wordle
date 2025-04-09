@@ -3,6 +3,4 @@ password1234
 0
 0
 
-test 0
-
-testo 0
+testo 2

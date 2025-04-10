@@ -1,8 +1,8 @@
 password1234
-35
-6
-4
-4
+39
+7
+5
+5
 
 irate w
 
@@ -73,3 +73,11 @@ tombs 1
 fixed 2
 
 femur 2
+
+krays w
+
+glide 3
+
+odism 2
+
+rusas 2

@@ -302,7 +302,16 @@ int serve(void)
                                     paste_and_copy(user->name, stats);
                                 }
                                 int attempts = 6 - get_status(user->name);
-                                sprintf(msg, "ok<<Attempts left: %d<<", attempts);
+                                char path[64];
+                                sprintf(path, "records/games/%s.%s.txt", user->name, choosen_word);
+                                FILE *f = fopen(path, "r");
+                                if (f) {
+                                    char *history = print_file(path);
+                                    sprintf(msg, "ok<<Attempts left: %d\n\n%s", attempts, history);
+                                    free(history);
+                                } else {
+                                    sprintf(msg, "ok<<Attempts left: %d<<", attempts);
+                                }
                                 send(pfds[i].fd, msg, strlen(msg), 0);
                             }
                         } else if (!strcmp(op, "guess")) {

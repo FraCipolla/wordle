@@ -19,5 +19,6 @@ stat_t get_stats(char *username);
 void paste_and_copy(char *username, stat_t stats);
 long long timeInMilliseconds(void);
 void setRandomWord();
+char *print_file(char *path);
 
 #endif

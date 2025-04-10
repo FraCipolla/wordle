@@ -21,11 +21,30 @@ static int is_inside(char c)
 int guess_word(char *guess, int socket)
 {
 	user_t *user = get_user(socket);
-	char msg[256];
+	char msg[2048];
 	char fmt[32];
+	char path[64];
 
 	memset(fmt, 0, sizeof(fmt));
 	memset(msg, 0, sizeof(msg));
+	sprintf(path, "records/games/%s.%s.txt", user->name, choosen_word);
+	FILE *f = fopen(path, "a");
+	char **words_arr = words_load[guess[0] - 97].words;
+	int exists = 0;
+	for (int i = 0; i < words_load[guess[0] - 97].size; i++) {
+	    if (!strcmp(words_arr[i], guess)) {
+	        exists = 1;
+	        break;
+	    }
+	}
+	if (!exists) {
+		char *history = print_file(path);
+		sprintf(msg, "error<<You must input a valid word\n\n%s", history);
+		free(history);
+		send(socket, msg, strlen(msg), 0);
+		return 0;
+	}
+	increase_attempt(user->name, 'z');
 	if (strcmp(guess, choosen_word) == 0) {
 		stat_t stats = get_stats(user->name);
 		stats.total_win++;
@@ -35,7 +54,13 @@ int guess_word(char *guess, int socket)
 		}
 		increase_attempt(user->name, 'w');
 		paste_and_copy(user->name, stats);
-		sprintf(msg, "win\r\n\033[30;42m %c %c %c %c %c \033[0m", guess[0], guess[1], guess[2], guess[3], guess[4]);
+		fprintf(f,
+			"\033[30;42m %c  %c  %c  %c  %c \033[0m\n",
+			guess[0], guess[1], guess[2], guess[3], guess[4]);
+		fclose(f);
+		char *history = print_file(path);
+		sprintf(msg, "win<<%s", history);
+		free(history);
 		send(socket, msg, strlen(msg), 0);
 		return 1;
 	} else {
@@ -55,9 +80,15 @@ int guess_word(char *guess, int socket)
 			}
 		}
 	}
+	fprintf(f, "%s\n", msg);
+	fclose(f);
+	char *history = print_file(path);
+	memset(msg, 0, sizeof(msg));
+	sprintf(msg, "%s", history);
+	free(history);
 	estatus_t status = get_status(user->name);
 	int attempts = 6 - status;
-	char append[512];
+	char append[2048];
 	if (attempts == 0) {
 		stat_t stats = get_stats(user->name);
 		if (stats.current_win_streak > stats.win_streak) {
@@ -66,9 +97,9 @@ int guess_word(char *guess, int socket)
 		stats.current_win_streak = 0;
 		increase_attempt(user->name, 'l');
 		paste_and_copy(user->name, stats);
-		sprintf(append, "end\r\n%s", msg);
+		sprintf(append, "end<<%s", msg);
 	} else {
-		sprintf(append, "skip\r\nAttempts left: %d\r\n%s", attempts, msg);
+		sprintf(append, "skip<<Attempts left: %d\n\n%s", attempts, msg);
 	}
 	send(socket, append, strlen(append), 0);
 	return 0;
@@ -77,7 +108,7 @@ int guess_word(char *guess, int socket)
 void play_game(int socket)
 {
 	char guess[32];
-	char buf[256];
+	char buf[2048];
 	char msg[64];
 	int numbytes = 0;
 	
@@ -96,26 +127,25 @@ void play_game(int socket)
 		else if (strlen(guess) != 5) {
 			printf("Error: word must be 5 characters long\n");
 		} else {
-			sprintf(msg, "guess\r\n%s", guess);
+			sprintf(msg, "guess<<%s", guess);
 			send(socket, msg, strlen(msg), 0);
-			if ((numbytes = recv(socket, buf, 256, 0)) == -1) {
+			if ((numbytes = recv(socket, buf, sizeof(buf), 0)) == -1) {
 				perror("recv");
 				exit(1);
 			}
-			char *tok = strtok(buf, "\r\n");
+			char *tok = strtok(buf, "<<");
 			if (!strcmp("end", tok)) {
-				printf("\n%s\n\n", strtok(NULL, "\r\n"));
+				printf("\n%s\n", strtok(NULL, "<<"));
 				printf("Oh no! You miss the correct word!\n\n");
 				return ;
 			} else if (!strcmp("win", tok)) {
-				printf("\n%s\n\n", strtok(NULL, "\r\n"));
-				printf("Congratulations! You found the correct word!\n\n");
+				printf("\n%s\n", strtok(NULL, "<<"));
+				printf("\nCongratulations! You found the correct word!\n\n");
 				return ;
-			} else if (!strcmp("error", tok)) {
-				printf("\n%s\n\n", strtok(NULL, "\r\n"));
 			} else {
-				printf("\n%s\n\n%s\n\n", strtok(NULL, "\r\n"), strtok(NULL, "\r\n"));
+				printf("\n%s\n", strtok(NULL, "<<"));
 			}
+			printf("\n");
 		}
 	}
 }

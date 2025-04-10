@@ -7,6 +7,30 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <time.h>
+#include <string.h>
+
+char *print_file(char *path)
+{
+    char line[512];
+    char *ret = malloc(1024);
+    FILE *fp;
+
+    fp = fopen(path,"r");
+    if(fp == NULL) {
+        exit(0);
+    }
+    int j = 0;
+    while (fgets(line, 512, fp)){
+        for (int i = 0; line[i] != '\n'; i++) {
+            ret[j++] = line[i];
+        }
+        ret[j++] = '\n';
+    };
+    ret[j] = 0;
+    fclose(fp);
+    printf("%s\n", ret);
+    return ret;
+}
 
 void setRandomWord()
 {
@@ -107,7 +131,8 @@ stat_t get_stats(char *username)
     user = fopen(path, "r");
 
     stat_t stats;
-    fscanf(user, "%s\n%d\n%d\n%d\n%d", stats.password, &stats.total_game, &stats.total_win, &stats.win_streak, &stats.current_win_streak);
+    int n = fscanf(user, "%s\n%d\n%d\n%d\n%d", stats.password, &stats.total_game, &stats.total_win, &stats.win_streak, &stats.current_win_streak);
+    if (n <= 0) { exit(0); }
 
     fclose(user);
     return stats;

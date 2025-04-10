@@ -262,18 +262,18 @@ int serve(void)
                         del_from_pfds(pfds, i, &fd_count);
                         i--;
                     } else {
-                        char msg[512];
-                        char *op = strtok(buf, "\r\n");
+                        char msg[1024];
+                        char *op = strtok(buf, "<<");
                         if (!strcmp(op, "signup")) {
-                            char *username = strtok(NULL, "\r\n");
-                            char *password = strtok(NULL, "\r\n");
+                            char *username = strtok(NULL, "<<");
+                            char *password = strtok(NULL, "<<");
                             if (register_user(username, password))
                                 send(pfds[i].fd, "\nwell done!\nuser registered\nYou can now login using:\n\n\twordle login <username>:<password> <host>\n", 97, 0);
                             else
                                 send(pfds[i].fd, "\ntry again: user already exists\n", 35, 0);
                         } else if (!strcmp(op, "login")) {
-                            char *username = strtok(NULL, "\r\n");
-                            char *password = strtok(NULL, "\r\n");
+                            char *username = strtok(NULL, "<<");
+                            char *password = strtok(NULL, "<<");
                             int status = login(username, password);
                             switch (status) {
                                 case 1: {
@@ -294,7 +294,7 @@ int serve(void)
                             user_t *user = get_user(pfds[i].fd);
                             int status = get_status(user->name);
                             if (status == END_GAME) {
-                                send(pfds[i].fd, "ko\r\nYou have no more attempts for today, wait tomorrow for the next word!\r\n", 76, 0);
+                                send(pfds[i].fd, "ko<<You have no more attempts for today, wait tomorrow for the next word!<<", 76, 0);
                             } else {
                                 if (status == NEW_WORD) {
                                     stat_t stats = get_stats(user->name);
@@ -302,26 +302,12 @@ int serve(void)
                                     paste_and_copy(user->name, stats);
                                 }
                                 int attempts = 6 - get_status(user->name);
-                                sprintf(msg, "ok\r\nAttempts left: %d\r\n", attempts);
+                                sprintf(msg, "ok<<Attempts left: %d<<", attempts);
                                 send(pfds[i].fd, msg, strlen(msg), 0);
                             }
                         } else if (!strcmp(op, "guess")) {
-                            char *tok = strtok(NULL, "\r\n");
-                            char **words_arr = words_load[tok[0] - 97].words;
-                            int exists = 0;
-                            for (int i = 0; i < words_load[tok[0] - 97].size; i++) {
-                                if (!strcmp(words_arr[i], tok)) {
-                                    exists = 1;
-                                    break;
-                                }
-                            }
-                            if (exists) {
-                                user_t *user = get_user(pfds[i].fd);
-                                increase_attempt(user->name, 'z');
-                                guess_word(tok, pfds[i].fd);
-                            } else {
-                                send(pfds[i].fd, "error\r\nYou must input a valid word", 35, 0);
-                            }
+                            char *tok = strtok(NULL, "<<");
+                            guess_word(tok, pfds[i].fd);
                         } else if (!strcmp(op, "stats")) {
                             user_t *user = get_user(pfds[i].fd);
                             stat_t stats = get_stats(user->name);

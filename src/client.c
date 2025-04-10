@@ -82,14 +82,14 @@ int client(char *username, char *password, char *address, int op)
         return 0;
     } else if (op == LOGIN) {
         char buff[1024];
-        sprintf(buff, "login\r\n%s\r\n%s\r\n\r\n", username, password);
+        sprintf(buff, "login<<%s<<%s<<<<", username, password);
         send(sockfd, buff, strlen(buff), 0);
         if ((numbytes = recv(sockfd, buf, 1024, 0)) == -1) {
             perror("recv");
             exit(1);
         }
         buf[numbytes] = '\0';
-        char *tok = strtok(buf, "\r\n");
+        char *tok = strtok(buf, "<<");
         if (!strcmp(tok, "accept")) {
             char input[128];
             int n_read;
@@ -112,10 +112,10 @@ int client(char *username, char *password, char *address, int op)
                             exit(1);
                         }
                         buf[numbytes] = '\0';
-                        char *tok = strtok(buf, "\r\n");
+                        char *tok = strtok(buf, "<<");
                         prompt();
                         printf("Guess a 5 chars long word\n\n");
-                        printf("%s\n\n", strtok(NULL, "\r\n"));
+                        printf("%s\n\n", strtok(NULL, "<<"));
                         if (!strcmp(tok, "ko")) {
                             printf("[p]lay  [s]tats    [q]uit\n\n");
                             prompt();
@@ -123,7 +123,8 @@ int client(char *username, char *password, char *address, int op)
                         }
                         play_game(sockfd);
                         printf("<<<<<<<<<<<<<<<<<<press enter to continue<<<<<<<<<<<<<<<<<<\n");
-                        read(1, input, 128);
+                        int r = read(1, input, 128);
+                        if (r <= 0) { exit(0); }
                         int s = system("@cls||clear");
                         if (s < 0) { exit(0); }
                         printf("\n%s\n", WORDLE);

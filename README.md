@@ -28,3 +28,6 @@ register an user to be able to play
 ### login
   - wordle login username:password url
 login and have fun!
+
+# disclaimer
+this project has been made for a school rush. A rush is a team project with 2 days deadline. So, it's not meant to be perfect, but nonetheless I've really enjoyed doing this and I would like to share it!

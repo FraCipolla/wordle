@@ -10,6 +10,8 @@ typedef enum {
     FOUR_ATTEMPTS,
     FIVE_ATTEMPTS,
     END_GAME,
+    WIN,
+    LOSE,
     ERROR
 }   estatus_t;
 

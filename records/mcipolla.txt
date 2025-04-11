@@ -1,8 +1,8 @@
 password1234
-40
-8
+47
+13
 6
-6
+4
 
 irate w
 
@@ -83,3 +83,17 @@ odism 2
 rusas 2
 
 kandy w
+
+finks l
+
+virge w
+
+bocce l
+
+melee w
+
+plume w
+
+purse w
+
+yacks w

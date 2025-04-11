@@ -20,5 +20,6 @@ void paste_and_copy(char *username, stat_t stats);
 long long timeInMilliseconds(void);
 void setRandomWord();
 char *print_file(char *path);
+void enter_to_continue();
 
 #endif

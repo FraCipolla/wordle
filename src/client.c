@@ -91,6 +91,8 @@ int client(char *username, char *password, char *address, int op)
         buf[numbytes] = '\0';
         char *tok = strtok(buf, "<<");
         if (!strcmp(tok, "accept")) {
+            int s = system("@cls||clear");
+            if (s < 0) { exit(0); }
             char input[128];
             int n_read;
             printf("login succesfull!\n%s\n", WORDLE);
@@ -113,19 +115,21 @@ int client(char *username, char *password, char *address, int op)
                         }
                         buf[numbytes] = '\0';
                         char *tok = strtok(buf, "<<");
-                        prompt();
-                        printf("Guess a 5 chars long word\n\n");
+                        s = system("@cls||clear");
+                        if (s < 0) { exit(0); }
                         printf("%s\n\n", strtok(NULL, "<<"));
                         if (!strcmp(tok, "ko")) {
-                            printf("[p]lay  [s]tats    [q]uit\n\n");
+                            enter_to_continue();
+                            s = system("@cls||clear");
+                            if (s < 0) { exit(0); }
+                            printf("%s\n", WORDLE);
+                            printf("[p]lay    [s]tats    [q]uit\n\n");
                             prompt();
                             break;
                         }
                         play_game(sockfd);
-                        printf("<<<<<<<<<<<<<<<<<<press enter to continue<<<<<<<<<<<<<<<<<<\n");
-                        int r = read(1, input, 128);
-                        if (r <= 0) { exit(0); }
-                        int s = system("@cls||clear");
+                        enter_to_continue();
+                        s = system("@cls||clear");
                         if (s < 0) { exit(0); }
                         printf("\n%s\n", WORDLE);
                         printf("Welcome back %s!\n[p]lay    [s]tats    [q]uit\n\n", username);
@@ -141,16 +145,24 @@ int client(char *username, char *password, char *address, int op)
                         }
                         buf[numbytes] = '\0';
                         printf("\n%s\n\n", buf);
+                        enter_to_continue();
+                        s = system("@cls||clear");
+                        if (s < 0) { exit(0); }
+                        printf("%s\n", WORDLE);
                         printf("[p]lay    [s]tats    [q]uit\n\n");
                         prompt();
                         break;
                     }
                     case 'q': printf("See you soon %s!\n", username); exit(0);
-                    default:
-                    printf("\nerror: wrong input, please insert one of the following:\n");
-                    printf("[p]lay    [s]tats    [q]uit\n\n");
-                    prompt();
-                    break;
+                    default: {
+                        s = system("@cls||clear");
+                        if (s < 0) { exit(0); }
+                        printf("%s\n", WORDLE);
+                        printf("\nerror: wrong input, please insert one of the following:\n\n");
+                        printf("[p]lay    [s]tats    [q]uit\n\n");
+                        prompt();
+                        break;
+                    }
                 }
                 memset(input, 0, sizeof(input));
             }

@@ -45,7 +45,7 @@ int guess_word(char *guess, int socket)
 		return 0;
 	}
 	increase_attempt(user->name, 'z');
-	if (strcmp(guess, choosen_word) == 0) {
+	if (!strcmp(guess, choosen_word)) {
 		stat_t stats = get_stats(user->name);
 		stats.total_win++;
 		stats.current_win_streak++;
@@ -111,9 +111,10 @@ void play_game(int socket)
 	char buf[2048];
 	char msg[64];
 	int numbytes = 0;
-	
+	int s;
+
 	while (1) {
-		printf("enter exit to exit\n\n");
+        printf("Guess a 5 chars long word\nenter exit to exit\n");
 		prompt();
 		memset(guess, 0, sizeof(guess));
 		memset(msg, 0, sizeof(msg));
@@ -127,6 +128,8 @@ void play_game(int socket)
 		else if (strlen(guess) != 5) {
 			printf("Error: word must be 5 characters long\n");
 		} else {
+			s = system("@cls||clear");
+			if (s < 0) { exit(0); }
 			sprintf(msg, "guess<<%s", guess);
 			send(socket, msg, strlen(msg), 0);
 			if ((numbytes = recv(socket, buf, sizeof(buf), 0)) == -1) {
@@ -139,7 +142,7 @@ void play_game(int socket)
 				printf("Oh no! You miss the correct word!\n\n");
 				return ;
 			} else if (!strcmp("win", tok)) {
-				printf("\n%s\n", strtok(NULL, "<<"));
+				printf("\n\n%s\n", strtok(NULL, "<<"));
 				printf("\nCongratulations! You found the correct word!\n\n");
 				return ;
 			} else {

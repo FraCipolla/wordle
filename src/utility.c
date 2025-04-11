@@ -137,3 +137,11 @@ stat_t get_stats(char *username)
     fclose(user);
     return stats;
 }
+
+void enter_to_continue()
+{
+    char input[128];
+    printf("<<<<<<<<<<<<<<<<<<press enter to continue<<<<<<<<<<<<<<<<<<\n");
+    int r = read(1, input, 128);
+    if (r <= 0) { ; }
+}

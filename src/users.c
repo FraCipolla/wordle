@@ -33,8 +33,10 @@ estatus_t get_status(char *username)
         fprintf(user, "\n%s %d\n", choosen_word, 0);
         fclose(user);
         return NEW_WORD;
-    } else if (!strcmp(status, "w") || !strcmp(status, "l")) {
-        return END_GAME;
+    } else if (!strcmp(status, "w")) {
+        return WIN;
+    } else if (!strcmp(status, "l")) {
+        return LOSE;
     }
     return (estatus_t)atoi(status);
 }

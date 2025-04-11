@@ -293,8 +293,22 @@ int serve(void)
                             }
                             user_t *user = get_user(pfds[i].fd);
                             int status = get_status(user->name);
-                            if (status == END_GAME) {
-                                send(pfds[i].fd, "ko<<You have no more attempts for today, wait tomorrow for the next word!<<", 76, 0);
+                            char path[64];
+                            char *history = NULL;
+                            sprintf(path, "records/games/%s.%s.txt", user->name, choosen_word);
+                            FILE *f = fopen(path, "r");
+                            if (f) {
+                                history = print_file(path);
+                            }
+                            if (status >= END_GAME) {
+                                sprintf(
+                                    msg,
+                                    "ko<<\n%s\n%swait tomorrow for the next word!",
+                                    history,
+                                    status == LOSE ? "You have no more attempts for today, " : "Word already found, "
+                                );
+                                free(history);
+                                send(pfds[i].fd, msg, strlen(msg), 0);
                             } else {
                                 if (status == NEW_WORD) {
                                     stat_t stats = get_stats(user->name);
@@ -302,11 +316,7 @@ int serve(void)
                                     paste_and_copy(user->name, stats);
                                 }
                                 int attempts = 6 - get_status(user->name);
-                                char path[64];
-                                sprintf(path, "records/games/%s.%s.txt", user->name, choosen_word);
-                                FILE *f = fopen(path, "r");
-                                if (f) {
-                                    char *history = print_file(path);
+                                if (history) {
                                     sprintf(msg, "ok<<Attempts left: %d\n\n%s", attempts, history);
                                     free(history);
                                 } else {
